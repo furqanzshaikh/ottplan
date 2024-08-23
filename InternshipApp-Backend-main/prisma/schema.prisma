@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+ url      = env("DATABASE_URL")
+//url="postgres://default:27yfBILpMbvi@ep-sparkling-term-a4h2jc20.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require"
+
+
+ 
+}
+
+model User {
+  id               Int       @id @default(autoincrement())
+  username         String    @unique
+  email            String    @unique
+  password         String
+  resetotp         String?
+  verified         String?
+  verifyotp        String?
+  isAdmin          Boolean @default(false)
+  company_existing String?
+  companies        Company[]
+}
+
+model Company {
+  id    Int    @id @default(autoincrement())
+  name  String
+  users User[]
+}
+
+model Employee {
+  id            Int      @id @default(autoincrement())
+  name          String
+  email         String
+  degree        String
+  experience    String
+  mobileNumber  String // Corrected the field name
+  role          String
+  city          String
+  state         String
+  joiningDate   DateTime @default(now()) // Added the field name
+  address       String // Moved to the correct position
+}
+
+model Role {
+  id            Int      @id @default(autoincrement())
+  name          String
+  email         String
+  degree        String
+  passoutYear  String      // Representing the year of graduation
+  college       String
+  skills        String    // You can store skills as a comma-separated string or use a string array if supported
+  experience    String    // Description of any experience
+  certificate   String    // You can store certificate details here
+  city          String
+  state         String
+  joiningDate   DateTime  @default(now())
+  address       String
+}
