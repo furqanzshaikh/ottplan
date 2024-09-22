@@ -4,6 +4,7 @@ const helmet = require("helmet");
 const authRoutes = require("../routes/auth");
 const empRoutes = require("../routes/emp");
 const roleRoutes = require("../routes/role");
+const clientRoutes = require("../routes/client");
 const bodyParser = require("body-parser");
 
 require("dotenv").config();
@@ -27,6 +28,7 @@ app.use(helmet());
 app.use("/auth", authRoutes);
 app.use("/emp", empRoutes);
 app.use("/role",roleRoutes);
+app.use("/client",clientRoutes);
 
 
 app.get("/", (req, res) => {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   List,
   ListItem,
@@ -20,8 +20,9 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import CategoryIcon from "@mui/icons-material/Category";
 import { Link } from "react-router-dom";
+import {jwtDecode} from "jwt-decode";
 
-
+// Define MenuItem interface
 interface MenuItem {
   text: string;
   icon: JSX.Element;
@@ -29,6 +30,7 @@ interface MenuItem {
   route?: string;
 }
 
+// Define mainMenuItems array without the Employee section
 const mainMenuItems: MenuItem[] = [
   {
     text: "Home",
@@ -38,29 +40,26 @@ const mainMenuItems: MenuItem[] = [
   {
     text: "Profile",
     icon: <PersonOutlineOutlinedIcon />,
-    route: "/",
+    route: "/profile",
   },
   { text: "Item", icon: <CategoryIcon />, route: "/table" },
   {
-    text: "Employee",
-    icon: <AccountBalanceWalletOutlinedIcon />,
-    route: "/employee",
+    text: "Role",
+    icon: <MonitorHeartOutlinedIcon />,
     subMenuItems: [
-      { text: "All Employees", icon: <MonitorHeartOutlinedIcon />, route: "/table" },
-      { text: "Add Employee", icon: <ReceiptLongOutlinedIcon />, route: "/employee-form" }, // Update route here
+      { text: "All Roles", icon: <MonitorHeartOutlinedIcon />, route: "/role-table" },
+      { text: "Add Role", icon: <ReceiptLongOutlinedIcon />, route: "/role-form" },
     ],
   },
   {
-    text: "Role",
+    text: "Client",
     icon: <MonitorHeartOutlinedIcon />,
-    route: "/role",
     subMenuItems: [
-      { text: "Add Role", icon: <ReceiptLongOutlinedIcon />, route: "/role-form" },
-      { text: "All Roles", icon: <MonitorHeartOutlinedIcon />, route: "/role-table" },
+      { text: "All Clients", icon: <MonitorHeartOutlinedIcon />, route: "/client-table" },
+      { text: "Add Client", icon: <ReceiptLongOutlinedIcon />, route: "/client-form" },
     ],
   },
 ];
-
 
 const MenuItemComponent: React.FC<{ item: MenuItem }> = ({ item }) => {
   const [expanded, setExpanded] = useState(false);
@@ -117,8 +116,6 @@ const MenuItemComponent: React.FC<{ item: MenuItem }> = ({ item }) => {
                         variant="body2"
                         style={{
                           color: "grey",
-                          // fontFamily: "'Poppins', sans-serif",
-                         
                         }}
                       >
                         {subItem.text}
@@ -137,8 +134,6 @@ const MenuItemComponent: React.FC<{ item: MenuItem }> = ({ item }) => {
           sx={{
             textDecoration: "none",
             color: "black",
-          
-            fontFamily: "'Poppins', sans-serif",
           }}
         >
           <ListItemIcon sx={{ color: "grey" }}>{item.icon}</ListItemIcon>
@@ -159,12 +154,43 @@ const MenuItemComponent: React.FC<{ item: MenuItem }> = ({ item }) => {
 };
 
 const MainMenu: React.FC = () => {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      try {
+        const decodedToken: any = jwtDecode(token);
+        console.log(decodedToken)
+        setIsAdmin(decodedToken.role === 'admin');
+      } catch (error) {
+        console.error("Invalid token:", error);
+      }
+    }
+  }, []);
+
   return (
     <Box sx={{ maxHeight: '100vh', overflow: 'hidden' }}>
       <List>
         {mainMenuItems.map((item, index) => (
           <MenuItemComponent key={index} item={item} />
         ))}
+
+        {/* Conditionally render Employee section */}
+        {isAdmin && (
+          <MenuItemComponent
+            key={"employee"}
+            item={{
+              text: "Employee",
+              icon: <AccountBalanceWalletOutlinedIcon />,
+              route: "/employee",
+              subMenuItems: [
+                { text: "All Employees", icon: <MonitorHeartOutlinedIcon />, route: "/table" },
+                { text: "Add Employee", icon: <ReceiptLongOutlinedIcon />, route: "/employee-form" },
+              ],
+            }}
+          />
+        )}
       </List>
     </Box>
   );

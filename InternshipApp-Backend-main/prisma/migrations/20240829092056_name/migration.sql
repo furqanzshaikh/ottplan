@@ -1,0 +1,18 @@
+-- CreateTable
+CREATE TABLE "Client" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "degree" TEXT NOT NULL,
+    "passoutYear" TEXT NOT NULL,
+    "college" TEXT NOT NULL,
+    "skills" TEXT NOT NULL,
+    "experience" TEXT NOT NULL,
+    "certificate" TEXT NOT NULL,
+    "city" TEXT NOT NULL,
+    "state" TEXT NOT NULL,
+    "joiningDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "address" TEXT NOT NULL,
+
+    CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
+);

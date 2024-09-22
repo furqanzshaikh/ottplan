@@ -3,6 +3,8 @@ import { MaterialReactTable, MRT_ColumnDef } from 'material-react-table';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack, Typography } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Row {
   id: number;
@@ -26,7 +28,7 @@ const DataTable = () => {
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
- 
+
   const formatDate = (dateString: string): string => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -71,8 +73,9 @@ const DataTable = () => {
     ],
     []
   );
-  const getEmpsUrl = import.meta.env.VITE_API_URL + "emp/all-emp"
-  const deleteEmpsUrl =import.meta.env.VITE_API_URL +`emp/delete-emp/${selectedItemId}`;
+
+  const getEmpsUrl = import.meta.env.VITE_API_URL + "emp/all-emp";
+  const deleteEmpsUrl = import.meta.env.VITE_API_URL + `emp/delete-emp/${selectedItemId}`;
 
   const filteredRows = useMemo(
     () =>
@@ -92,7 +95,7 @@ const DataTable = () => {
 
   const getAllProfiles = () => {
     axios
-      .get(getEmpsUrl||'http://localhost:3000/emp/all-emp')
+      .get('http://localhost:3000/emp/all-emp' || getEmpsUrl)
       .then((response) => {
         if (Array.isArray(response.data)) {
           setProfileData(response.data);
@@ -109,9 +112,9 @@ const DataTable = () => {
     getAllProfiles();
   }, []);
 
-const handleEditItem = (row: Row) => {
-  navigate(`/edit-employee/${row.id}`, { state: { ...row } });
-};
+  const handleEditItem = (row: Row) => {
+    navigate(`/edit-employee/${row.id}`, { state: { ...row } });
+  };
 
   const handleClickOpen = (row: Row) => {
     setSelectedItemId(row.id);
@@ -126,10 +129,12 @@ const handleEditItem = (row: Row) => {
     if (selectedItemId === null) return;
 
     try {
-      await axios.delete(deleteEmpsUrl||`http://localhost:3000/emp/delete-emp/${selectedItemId}`);
+      await axios.delete(`http://localhost:3000/emp/delete-emp/${selectedItemId}` || deleteEmpsUrl);
+      toast.success('Employee deleted successfully!'); // Success message
       getAllProfiles(); // Refresh the data
     } catch (error) {
       console.error('Error deleting item:', error);
+      toast.error('Error deleting employee.'); // Error message
     } finally {
       setOpen(false);
     }
@@ -168,6 +173,9 @@ const handleEditItem = (row: Row) => {
           <Button variant="outlined" color="error" onClick={handleClose}>No</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Toast Container */}
+      <ToastContainer />
     </div>
   );
 };

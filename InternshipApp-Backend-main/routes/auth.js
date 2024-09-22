@@ -12,6 +12,6 @@ router.get("/get-user", authController.getUser);
 router.get("/get-all-users", authController.getAllUsers);
 router.post("/forgot-password", authController.forgotPassword);
 router.post("/reset-password", authController.resetPassword);
-router.get("/check-admin",authController.verifyToken, authController.isAdmin);
+router.get("/check-admin",authController.verifyToken, authController.checkAdmin);
 
 module.exports = router;

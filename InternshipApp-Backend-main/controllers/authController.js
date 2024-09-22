@@ -96,12 +96,11 @@ exports.register = [
   },
 ];
 
+
 exports.verifyToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   
-  
   if (!authHeader) {
-    
     return res.status(401).json({ message: 'No authorization header provided.' });
   }
 
@@ -112,28 +111,33 @@ exports.verifyToken = async (req, res, next) => {
   }
 
   try {
-    // Verify the token
+    // Verify the token and decode it
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
     
-    // Add decoded user info to req.user
     req.user = decoded;
 
     // Optional: Check if the user exists in the database
-    // const user = await prisma.user.findUnique({ where: { id: decoded.id } });
-    // if (!user) {
-    //   return res.status(401).json({ message: 'User not found.' });
-    // }
+    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+    if (!user) {
+      return res.status(401).json({ message: 'User not found.' });
+    }
 
-    next(); // Proceed to the next middleware or route handler
+    next(); 
   } catch (error) {
     console.error('Token verification failed:', error);
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Unauthorized: Token has expired.' });
+    }
+    
     res.status(401).json({ message: 'Unauthorized: Invalid token.' });
   }
 };
 
 
-exports.isAdmin = ('/check-admin', async (req, res) => {
+exports.checkAdmin = ('/check-admin', async (req, res) => {
   try {
+    // Check if the user ID is present in the request
     if (!req.user || !req.user.id) {
       return res.status(401).json({ message: 'Unauthorized: No user ID found in token.' });
     }
@@ -143,26 +147,24 @@ exports.isAdmin = ('/check-admin', async (req, res) => {
       where: { id: req.user.id },
     });
 
+    // Check if the user was found
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
 
     // Check if the user is an admin
-    if (user.isAdmin) {
-      return res.status(200).json({ isAdmin: true });
+    if (user.role === 'admin') {
+      return res.status(200).json({ role: 'admin' });
     } else {
       return res.status(403).json({ isAdmin: false, message: 'Access denied. User is not an admin.' });
     }
   } catch (error) {
     console.error('Error checking admin status:', error);
-    res.status(500).json({ message: 'Internal server error.' });
+    return res.status(500).json({ message: 'Internal server error.' });
   } finally {
-    await prisma.$disconnect();
+    await prisma.$disconnect(); // Ensure Prisma disconnects after the request
   }
 });
-
-// Export the app if needed
-
 
 exports.verifyEmail = [
   // Validation for OTP
@@ -238,12 +240,12 @@ exports.login = [
         return res.status(400).json({ message: "Invalid credentials" });
       }
 
-      // Generate JWT token
+   
       const generateToken = (user) => {
         const payload = {
           id: user.id,
           email: user.email,
-          // other user details if needed
+          role: user.role
         };
 
         return jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '24h' });

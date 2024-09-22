@@ -1,15 +1,19 @@
+import { EditRole } from "../components/internForm/subComponent/EditRole";
+import DashboardSelector from "../components/DashboardSelector";
+import { lazy, Suspense } from "react";
 import { createBrowserRouter, RouteObject } from "react-router-dom";
-import { Suspense, lazy, useEffect, useState } from "react";
-import App from "../App";
-import Loading from "../components/common/Loading";
-import Dashboard from "../components/dashboard";
-//import FormComponent from "../components/form/index";
 import ProtectedRoute from "./ProtectedRoute";
-import { EditItem } from "../components/dataTable/EditIEmp";
+import Layout from "../components/layout/index";
+import Loading from "../components/common/Loading";
 import RoleTable from "../components/internForm/subComponent/RoleTable";
-import { EditIntern } from "../components/internForm/subComponent/EditRole";
-import EmployeeDashboard from "./EmployeeDashboard";
-import axios from "axios";
+import { Dashboard } from "@mui/icons-material";
+import {EditItem} from '../components/dataTable/EditEmp'
+import ClientForm from "../components/client/ClientForm";
+import ClientTable from "../components/client/ClientTable";
+import {EditClient} from "../components/client/EditClient";
+
+import Profile from "./Profile";
+
 
 const DataTable = lazy(() => import("../components/dataTable"));
 const Login = lazy(() => import("../components/login"));
@@ -24,61 +28,33 @@ const VerifyUser = lazy(
   () => import("../components/login/subComponents/VerifyUser")
 );
 const RoleForm = lazy(() => import("../components/internForm/RoleForm"));
-const EmpForm = lazy(() => import("../components/form")); // Lazy load the TrainerForm component
+const EmpForm = lazy(() => import("../components/form")); 
 
 const getAccessToken = () => {
-  const token = localStorage.getItem("accessToken");
-  return token;
+  return localStorage.getItem("accessToken");
 };
-
 
 const isAuthenticated = (): boolean => {
-  const token = getAccessToken();
-  return !!token;
-};
-
-
-  
-  
- 
-// eslint-disable-next-line react-refresh/only-export-components
-const Layout = () => {
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-
-  const checkAdminStatus = async () => {
-    const token = getAccessToken();
-    try {
-      const response = await axios.get("http://localhost:3000/auth/check-admin", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setIsAdmin(response.data.isAdmin);
-    } catch (error) {
-      console.error("Failed to check admin status", error);
-      setIsAdmin(false); // Assume non-admin if there's an error
-    }
-  };
-
-  useEffect(() => {
-    checkAdminStatus();
-  }, []);
-  
-  if (isAdmin === null) {
-    return <Loading />; // Show loading while checking admin status
-  }
-
-  return isAdmin ? <App /> : <EmployeeDashboard />
-  
+  return !!getAccessToken();
 };
 
 const appRouter: RouteObject[] = [
   {
     path: "/",
     element: (
-      <ProtectedRoute  isAuthenticated={isAuthenticated()}>
+      <ProtectedRoute isAuthenticated={isAuthenticated()}>
         <Layout />
       </ProtectedRoute>
     ),
     children: [
+      {
+        path: "/",
+        element: (
+          <Suspense fallback={<Loading />}>
+            <DashboardSelector />
+          </Suspense>
+        ),
+      },
       {
         path: "/table",
         element: (
@@ -115,7 +91,15 @@ const appRouter: RouteObject[] = [
         path: "/edit-role/:id",
         element: (
           <Suspense fallback={<Loading />}>
-            <EditIntern />
+            <EditRole />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/edit-client/:id",
+        element: (
+          <Suspense fallback={<Loading />}>
+            <EditClient />
           </Suspense>
         ),
       },
@@ -132,6 +116,30 @@ const appRouter: RouteObject[] = [
         element: (
           <Suspense fallback={<Loading />}>
             <RoleForm />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/client-form",
+        element: (
+          <Suspense fallback={<Loading />}>
+            <ClientForm />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/client-table",
+        element: (
+          <Suspense fallback={<Loading />}>
+            <ClientTable />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/profile",
+        element: (
+          <Suspense fallback={<Loading />}>
+            <Profile />
           </Suspense>
         ),
       },
@@ -153,6 +161,7 @@ const appRouter: RouteObject[] = [
       </Suspense>
     ),
   },
+ 
   {
     path: "/forgot-password",
     element: (

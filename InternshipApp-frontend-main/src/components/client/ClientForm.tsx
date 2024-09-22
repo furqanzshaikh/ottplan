@@ -2,8 +2,7 @@ import React, { FormEvent, useState } from "react";
 import { Box, TextField, Button, Grid, Typography } from "@mui/material";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
 
 interface FormData {
   name: string;
@@ -20,7 +19,7 @@ interface FormData {
   address: string;
 }
 
-const FormComponent: React.FC = () => {
+const ClientForm: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -35,7 +34,7 @@ const FormComponent: React.FC = () => {
     joiningDate: "",
     address: "",
   });
-  const navigate = useNavigate()
+
   const handleChange = (key: keyof FormData, value: string | number) => {
     setFormData((prevState) => ({
       ...prevState,
@@ -43,44 +42,38 @@ const FormComponent: React.FC = () => {
     }));
   };
 
-  const roleUrl = import.meta.env.VITE_API_URL + "role/addrole";
+  const clientUrl = import.meta.env.VITE_API_URL + "client/add-client";
 
   const handleSubmitForm = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-         'http://localhost:3000/role/addrole' ||roleUrl ,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await axios.post('http://localhost:3000/client/add-client'||clientUrl  , formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      if (response.status === 200) {
-        toast.success("Role added successfully!!");
-        setTimeout(() => {
-            navigate("/role-table");
-        }, 2000);
-        setFormData({
-          name: "",
-          email: "",
-          degree: "",
-          passoutYear: new Date().getFullYear(),
-          college: "",
-          skills: "",
-          experience: "",
-          certificate: "",
-          city: "",
-          state: "",
-          joiningDate: "",
-          address: "",
-        });
-       
-      }
+      // Show success toast notification
+      toast.success("Client added successfully!");
+
+      // Reset form fields
+      setFormData({
+        name: "",
+        email: "",
+        degree: "",
+        passoutYear: new Date().getFullYear(), // Reset to current year
+        college: "",
+        skills: "",
+        experience: "",
+        certificate: "",
+        city: "",
+        state: "",
+        joiningDate: "",
+        address: "",
+      });
     } catch (err) {
-      toast.error("There was an error while submitting the form.");
+      // Show error toast notification
+      toast.error(`There was an error while submitting the form: ${err}`);
     }
   };
 
@@ -98,10 +91,10 @@ const FormComponent: React.FC = () => {
         borderRadius: 5,
       }}
     >
-      <ToastContainer />
+      <ToastContainer position="top-right" autoClose={3000} />
       <Box sx={{ bgcolor: "#F5F5F8", p: 1 }}>
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          Add Role Form
+          Add Client Form
         </Typography>
       </Box>
       <Box sx={{ bgcolor: "#FFFFFF", borderRadius: 5, p: 3 }}>
@@ -261,4 +254,4 @@ const FormComponent: React.FC = () => {
   );
 };
 
-export default FormComponent;
+export default ClientForm;

@@ -1,66 +1,21 @@
 const { body, validationResult } = require("express-validator");
+const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.addEmployee = [
-  // Validate and sanitize inputs
-  body("name")
-    .trim()
-    .isLength({ min: 4 })
-    .withMessage("Name must be at least 4 characters long")
-    .escape(),
-  body("email").isEmail().withMessage("Invalid email address").normalizeEmail(),
-  body("degree")
-    .trim()
-    .isLength({ min: 2 })
-    .withMessage("Degree must be at least 2 characters long")
-    .escape(),
-  body("experience")
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage("Experience must be at least 1 character long")
-    .escape(),
-  body("mobileNumber")
-    .trim()
-    .isLength({ min: 10, max: 15 })
-    .withMessage("Mobile number must be between 10 and 15 digits")
-    .escape(),
-  body("role")
-    .trim()
-    .isLength({ min: 3 })
-    .withMessage("Role must be at least 3 characters long")
-    .escape(),
-  body("city")
-    .trim()
-    .isLength({ min: 2 })
-    .withMessage("City must be at least 2 characters long")
-    .escape(),
-  body("state")
-    .trim()
-    .isLength({ min: 2 })
-    .withMessage("State must be at least 2 characters long")
-    .escape(),
-  body("joiningDate")
-    .optional()
-    .isISO8601()
-    .toDate()
-    .withMessage("Invalid date format"),
-  body("address")
-    .trim()
-    .isLength({ min: 5 })
-    .withMessage("Address must be at least 5 characters long")
-    .escape(),
-
   async (req, res) => {
-    // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    
     const {
       name,
       email,
+      password,
       degree,
       experience,
       mobileNumber,
@@ -69,38 +24,30 @@ exports.addEmployee = [
       state,
       joiningDate,
       address,
+      isActive,
     } = req.body;
-
+    const formattedJoiningDate = new Date(joiningDate).toISOString();
+    const hashedPassword = bcrypt.hash(password,10)
     try {
-      const formData = await prisma.employee.create({
+      const internData = await prisma.employee.create({
         data: {
           name,
           email,
+          password,
           degree,
           experience,
           mobileNumber,
           role,
           city,
           state,
-          joiningDate: joiningDate || new Date(),
+          joiningDate: formattedJoiningDate,
           address,
+          isActive,
         },
       });
-      res.status(200).json(formData);
+      res.status(200).json(internData);
     } catch (error) {
-      console.error("Error creating form data:", {
-        name,
-        email,
-        degree,
-        experience,
-        mobileNumber,
-        role,
-        city,
-        state,
-        joiningDate,
-        address,
-        error,
-      });
+      console.error("Error creating intern data:", error);
       res.status(500).json({ error: "Internal Server Error" });
     }
   },
@@ -118,11 +65,8 @@ exports.getEmployees = async (req, res) => {
   }
 };
 
-
-
 exports.getEmployee = async (req, res) => {
   const { id } = req.params; // Assume ID is passed as a URL parameter
-  console.log("Received ID:", id);
 
   try {
     // Convert the ID to an integer
@@ -134,14 +78,14 @@ exports.getEmployee = async (req, res) => {
 
     const singleData = await prisma.employee.findUnique({
       where: {
-        id: numericId, // Use the numeric ID here
+        id: numericId,
       },
     });
 
     if (!singleData) {
       return res.status(404).json({ message: "Data not found" });
     }
-    
+
     res.status(200).json(singleData);
   } catch (error) {
     console.error(error);
@@ -150,7 +94,6 @@ exports.getEmployee = async (req, res) => {
     await prisma.$disconnect();
   }
 };
-
 
 exports.updateEmployee = async (req, res) => {
   try {

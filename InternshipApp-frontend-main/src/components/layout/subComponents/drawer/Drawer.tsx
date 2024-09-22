@@ -1,6 +1,5 @@
-import { Drawer, Typography, Box } from "@mui/material";
+import { Drawer, Box } from "@mui/material";
 import MainMenuItems from "./MainMenuItems";
-import OtherMenuItems from "./OtherMenuItems";
 import Logo from "../../../../assets/images/logo.png";
 
 interface SidebarProps {
@@ -38,26 +37,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: 7,
-          p: 2,
+          mb:2,
+          mt:2
         }}
       >
         <img
           src={Logo}
           alt="LogoImg"
-          style={{ width: "60%", height: "auto" }}
+          style={{ width: "60%"}}
         />
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        ></Box>
       </Box>
 
       <MainMenuItems />
-      <OtherMenuItems />
       <Box
         sx={{
           display: "flex",
@@ -66,12 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           top: "23%",
         }}
       >
-        <Box sx={{ textAlign: "center" }}>
-          <Typography sx={{ fontSize: "0.8rem" }}>gibberish</Typography>
-          <Typography sx={{ fontSize: "0.7rem" }}>
-            @2024 All Rights Reserved
-          </Typography>
-        </Box>
+  
       </Box>
     </Drawer>
   );

@@ -1,13 +1,12 @@
-import Layout from "../components/layout/index"
+
+
 
 
 
 const EmployeeDashboard = () => {
-  return (
-    <>
-  <Layout/>
-  <h1>EmployeeDashboard</h1>
-    </>
+  return ( <div>EmployeeDashboard</div>
+
+
     
   )
 }

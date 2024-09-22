@@ -3,11 +3,11 @@ import { MaterialReactTable, MRT_ColumnDef } from 'material-react-table';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack, Typography } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { InternRow } from './row';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { InternRow } from '../internForm/subComponent/row';
+import { ToastContainer, toast } from "react-toastify";
 
-const RoleTable = () => {
+
+const ClientTable = () => {
   const [searchText] = useState<string>('');
   const [filterText] = useState<string>('');
   const [internData, setInternData] = useState<InternRow[]>([]);
@@ -24,7 +24,7 @@ const RoleTable = () => {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
-
+  
   const columns = useMemo<MRT_ColumnDef<InternRow>[]>(
     () => [
       { accessorKey: 'name', header: 'Name', size: 150 },
@@ -61,9 +61,8 @@ const RoleTable = () => {
     ],
     []
   );
-
-  const getRoleUrl = import.meta.env.VITE_API_URL + "role/all-roles";
-  const deleteRoleUrl = import.meta.env.VITE_API_URL + `role/delete-role/${selectedItemId}`;
+  const getClientUrl = import.meta.env.VITE_API_URL + "client/all-clients";
+  const deleteClientUrl = import.meta.env.VITE_API_URL + `client/delete-client/${selectedItemId}`;
 
   const filteredRows = useMemo(
     () =>
@@ -80,10 +79,10 @@ const RoleTable = () => {
       }),
     [searchText, filterText, internData]
   );
-
+  
   const getAllInterns = () => {
     axios
-      .get('http://localhost:3000/role/all-roles' || getRoleUrl)
+      .get('http://localhost:3000/client/all-clients'||getClientUrl)
       .then((response) => {
         if (Array.isArray(response.data)) {
           setInternData(response.data);
@@ -101,7 +100,7 @@ const RoleTable = () => {
   }, []);
 
   const handleEditItem = (row: InternRow) => {
-    navigate(`/edit-role/${row.id}`, { state: row });
+    navigate(`/edit-client/${row.id}`, { state: row });
   };
 
   const handleClickOpen = (row: InternRow) => {
@@ -117,12 +116,12 @@ const RoleTable = () => {
     if (selectedItemId === null) return;
 
     try {
-      await axios.delete(`http://localhost:3000/role/delete-role/${selectedItemId}` || deleteRoleUrl);
-      toast.success('Role deleted successfully!');
+      await axios.delete(`http://localhost:3000/client/delete-client/${selectedItemId}`||deleteClientUrl);
+      toast.success('Client delete successfully')
       getAllInterns(); // Refresh the data
     } catch (error) {
-      toast.error('Error deleting the role.');
       console.error('Error deleting intern:', error);
+      toast.success('Error While deleteing Client')
     } finally {
       setOpen(false);
     }
@@ -131,9 +130,9 @@ const RoleTable = () => {
   return (
     <div style={{ width: '100%', padding: '1rem' }}>
       <Typography fontSize="1rem" gutterBottom sx={{ fontWeight: 'bold' }}>
-        Role Info
+        Client Info
       </Typography>
-
+      <ToastContainer position="top-right" autoClose={3000} />
       <div style={{ overflowX: 'auto' }}>
         <MaterialReactTable
           columns={columns}
@@ -153,7 +152,7 @@ const RoleTable = () => {
         <DialogTitle id="alert-dialog-title">{"Delete This Intern?"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete this role?
+            Are you sure you want to delete this client?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -161,11 +160,8 @@ const RoleTable = () => {
           <Button variant="outlined" color="error" onClick={handleClose}>No</Button>
         </DialogActions>
       </Dialog>
-
-      {/* Toast Notification Container */}
-      <ToastContainer />
     </div>
   );
 };
 
-export default RoleTable;
+export default ClientTable;

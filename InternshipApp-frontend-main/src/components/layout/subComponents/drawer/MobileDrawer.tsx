@@ -1,6 +1,5 @@
-import { Box, Drawer, Typography } from "@mui/material";
+import { Box, Drawer } from "@mui/material";
 import MainMenuItems from "./MainMenuItems";
-import OtherMenuItems from "./OtherMenuItems";
 import { Close } from "@mui/icons-material";
 import Logo from "../../../../assets/images/logo.png";
 
@@ -64,7 +63,6 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
           </Box>
 
           <MainMenuItems />
-          <OtherMenuItems />
           <Box
             sx={{
               display: "flex",
@@ -73,14 +71,6 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
               top: "20%",
             }}
           >
-            <Box sx={{ textAlign: "center" }}>
-              <Typography sx={{ fontSize: "0.8rem"}}>
-                gibberish
-              </Typography>
-              <Typography sx={{ fontSize: "0.7rem" }}>
-                @2020 All Rights Reserved
-              </Typography>
-            </Box>
           </Box>
         </Box>
       </Box>

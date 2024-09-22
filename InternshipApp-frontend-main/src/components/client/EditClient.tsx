@@ -1,53 +1,59 @@
-import React from 'react';
+import React, { useEffect, useState, FormEvent } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Box, TextField, Button, Grid, Typography } from "@mui/material";
-import { useState, FormEvent } from 'react';
 import axios from 'axios';
+import { ToastContainer, toast } from "react-toastify";
 
-export const EditItem = () => {
+export const EditClient = () => {
     const location = useLocation();
     const { id } = useParams();
     const navigate = useNavigate();
     const { state: rowData } = location;
-
-    const [name, setName] = useState(rowData?.name);
-    const [email, setEmail] = useState(rowData?.email);
-    const [degree, setDegree] = useState(rowData?.degree);
-    const [experience, setExperience] = useState(rowData?.experience);
-    const [mobileNumber, setMobileNumber] = useState(rowData?.mobileNumber);
-    const [role, setRole] = useState(rowData?.role);
-    const [city, setCity] = useState(rowData?.city);
-    const [state, setState] = useState(rowData?.state);
+    
+    // Initialize states for form fields
+    const [name, setName] = useState(rowData?.name || '');
+    const [email, setEmail] = useState(rowData?.email || '');
+    const [degree, setDegree] = useState(rowData?.degree || '');
+    const [passoutYear, setPassoutYear] = useState(rowData?.passoutYear || '');
+    const [college, setCollege] = useState(rowData?.college || '');
+    const [skills, setSkills] = useState(rowData?.skills || '');
+    const [experience, setExperience] = useState(rowData?.experience || '');
+    const [certificate, setCertificate] = useState(rowData?.certificate || '');
+    const [city, setCity] = useState(rowData?.city || '');
+    const [state, setState] = useState(rowData?.state || '');
     const [joiningDate, setJoiningDate] = useState(() => {
         if (rowData?.joiningDate) {
             return new Date(rowData.joiningDate).toISOString().split('T')[0];
         }
         return '';
     });
-    const [address, setAddress] = useState(rowData?.address);
-
-    
+    const [address, setAddress] = useState(rowData?.address || '');
 
     const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const dateString = event.target.value;
         setJoiningDate(dateString);
     };
-    const updateEmpsUrl =import.meta.env.VITE_API_URL +`emp/update-emp/${id}`;
+
+    const editClientUrl = import.meta.env.VITE_API_URL + `client/update-client/${id}`;
+    const getSingle = import.meta.env.VITE_API_URL + `client/get-client/${id}`;
+
     const handleEditData = async (e: FormEvent) => {
         e.preventDefault();
         const isoDate = new Date(joiningDate).toISOString();
-        
-        await axios.patch(updateEmpsUrl||`http://localhost:3000/emp/update-emp/${id}`, {
-            name: name,
-            email: email,
-            degree: degree,
-            experience: experience,
-            mobileNumber: mobileNumber,
-            role: role,
-            city: city,
-            state: state,
+
+        await axios.patch( `http://localhost:3000/client/update-client/${id}`||editClientUrl , {
+            name,
+            email,
+            degree,
+            passoutYear,
+            college,
+            skills,
+            experience,
+            certificate,
+            city,
+            state,
             joiningDate: isoDate,
-            address: address
+            address
         }, {
             headers: {
                 'Content-Type': 'application/json'
@@ -55,15 +61,31 @@ export const EditItem = () => {
         })
             .then((response) => {
                 console.log(response, "edit form Response");
-                alert("Form edited successfully!!");
-                navigate("/table");
+                toast.success("Client details edited successfully!"); 
+                setTimeout(() => {
+                    
+                    navigate("/client-table");
+                }, 1000); // Show success notification
+                
+                
             })
             .catch((err) => {
+                toast.success("Error while updating Client details!"); 
                 console.log(err, "error submitting edit form");
-            })
-    }
+            });
+    };
+
+    const getSingleRole = async () => {
+        const response = await axios.get(getSingle || `http://localhost:3000/client/get-client/${id}`);
+        console.log(response.data);
+    };
+
+    useEffect(() => {
+        getSingleRole();
+    }, []);
 
     return (
+        
         <Box
             sx={{
                 display: "flex",
@@ -77,9 +99,10 @@ export const EditItem = () => {
                 borderRadius: 5,
             }}
         >
+            <ToastContainer position="top-right" autoClose={3000} />
             <Box sx={{ bgcolor: "#F5F5F8", p: 1 }}>
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                    Edit Employee
+                    Edit Client 
                 </Typography>
             </Box>
             <Box sx={{ bgcolor: "#FFFFFF", borderRadius: 5, p: 3 }}>
@@ -116,6 +139,36 @@ export const EditItem = () => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
+                            <Typography variant="body2" sx={{ mb: 1 }}>Passout Year</Typography>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                placeholder="Passout Year"
+                                value={passoutYear}
+                                onChange={(e) => setPassoutYear(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <Typography variant="body2" sx={{ mb: 1 }}>College</Typography>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                placeholder="College"
+                                value={college}
+                                onChange={(e) => setCollege(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <Typography variant="body2" sx={{ mb: 1 }}>Skills</Typography>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                placeholder="Skills"
+                                value={skills}
+                                onChange={(e) => setSkills(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
                             <Typography variant="body2" sx={{ mb: 1 }}>Experience</Typography>
                             <TextField
                                 fullWidth
@@ -126,23 +179,13 @@ export const EditItem = () => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <Typography variant="body2" sx={{ mb: 1 }}>Mobile Number</Typography>
+                            <Typography variant="body2" sx={{ mb: 1 }}>Certificate</Typography>
                             <TextField
                                 fullWidth
                                 size="small"
-                                placeholder="Mobile Number"
-                                value={mobileNumber}
-                                onChange={(e) => setMobileNumber(e.target.value)}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <Typography variant="body2" sx={{ mb: 1 }}>Role</Typography>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                placeholder="Role"
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
+                                placeholder="Certificate"
+                                value={certificate}
+                                onChange={(e) => setCertificate(e.target.value)}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
@@ -191,7 +234,7 @@ export const EditItem = () => {
                         <Grid item xs={12}>
                             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
                                 <Button variant="contained" color="primary" type="submit">
-                                    Edit Form
+                                    Edit Client
                                 </Button>
                             </Box>
                         </Grid>

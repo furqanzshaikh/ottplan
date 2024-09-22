@@ -45,7 +45,7 @@ const Login: React.FC<LoginProps> = () => {
     }
 
     try {
-      const response = await axios.post(/*loginURL*/ 'http://localhost:3000/auth/login', {
+      const response = await axios.post( 'http://localhost:3000/auth/login'  , {
         email,
         password,
       });
@@ -112,7 +112,7 @@ const Login: React.FC<LoginProps> = () => {
             mb: "-20px",
           }}
         >
-          ADMIN LOGIN
+          LOGIN
         </Typography>
         <Typography
           sx={{
